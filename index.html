@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Drawing Gallery</title>
+    <style>
+        :root {
+            --color-background: rgba(252, 252, 249, 1);
+            --color-surface: rgba(255, 255, 253, 1);
+            --color-text: rgba(19, 52, 59, 1);
+            --color-text-secondary: rgba(98, 108, 113, 1);
+            --color-primary: rgba(33, 128, 141, 1);
+            --color-primary-hover: rgba(29, 116, 128, 1);
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-secondary: rgba(94, 82, 64, 0.12);
+            --color-secondary-hover: rgba(94, 82, 64, 0.2);
+            --color-card-border: rgba(94, 82, 64, 0.12);
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background: rgba(31, 33, 33, 1);
+                --color-surface: rgba(38, 40, 40, 1);
+                --color-text: rgba(245, 245, 245, 1);
+                --color-text-secondary: rgba(167, 169, 169, 0.7);
+                --color-primary: rgba(50, 184, 198, 1);
+                --color-primary-hover: rgba(45, 166, 178, 1);
+                --color-border: rgba(119, 124, 124, 0.3);
+                --color-secondary: rgba(119, 124, 124, 0.15);
+                --color-secondary-hover: rgba(119, 124, 124, 0.25);
+                --color-card-border: rgba(119, 124, 124, 0.2);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: var(--space-20);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: var(--space-24);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-8);
+            color: var(--color-text);
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .upload-section {
+            background-color: var(--color-surface);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            margin-bottom: var(--space-24);
+            text-align: center;
+        }
+
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-16);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background-color: var(--color-primary);
+            color: white;
+            padding: var(--space-12) var(--space-24);
+            border-radius: var(--radius-base);
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-btn:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .file-name {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            min-height: 1.5rem;
+        }
+
+        .input-group {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: var(--space-12);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            font-size: 1rem;
+            background-color: var(--color-background);
+            color: var(--color-text);
+        }
+
+        .add-btn {
+            background-color: var(--color-primary);
+            color: white;
+            padding: var(--space-12) var(--space-24);
+            border-radius: var(--radius-base);
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-btn:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .add-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-20);
+            margin-bottom: var(--space-24);
+        }
+
+        .gallery-item {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-info {
+            padding: var(--space-16);
+        }
+
+        .gallery-title {
+            font-weight: 600;
+            margin-bottom: var(--space-8);
+            color: var(--color-text);
+        }
+
+        .gallery-date {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-8);
+        }
+
+        .delete-btn {
+            background-color: var(--color-secondary);
+            color: var(--color-text);
+            padding: var(--space-8) var(--space-16);
+            border-radius: var(--radius-base);
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: var(--color-secondary-hover);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: var(--space-20);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: var(--radius-base);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .close-modal:hover {
+            color: var(--color-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-24);
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: var(--space-16);
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: var(--space-16);
+            }
+
+            .close-modal {
+                right: 20px;
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 My Drawing Gallery</h1>
+            <p class="subtitle">Upload and showcase your artwork</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="upload-area">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept="image/*">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose Drawing
+                    </button>
+                </div>
+                <div class="file-name" id="fileName"></div>
+                
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           id="drawingTitle" 
+                           placeholder="Drawing title (e.g., Sunset Landscape)"
+                           maxlength="50">
+                    <button class="add-btn" id="addBtn" onclick="addDrawing()" disabled>
+                        Add to Gallery
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gallery" class="gallery"></div>
+
+        <div id="emptyState" class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3>No drawings yet</h3>
+            <p>Start by uploading your first drawing above!</p>
+        </div>
+    </div>
+
+    <div id="modal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Full size">
+        </div>
+    </div>
+
+    <script>
+        let drawings = [];
+        let selectedFile = null;
+
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const addBtn = document.getElementById('addBtn');
+        const drawingTitle = document.getElementById('drawingTitle');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                fileName.textContent = file.name;
+                updateAddButton();
+            } else {
+                selectedFile = null;
+                fileName.textContent = '';
+                alert('Please select a valid image file');
+            }
+        });
+
+        drawingTitle.addEventListener('input', updateAddButton);
+
+        function updateAddButton() {
+            addBtn.disabled = !selectedFile || drawingTitle.value.trim() === '';
+        }
+
+        function addDrawing() {
+            if (!selectedFile || drawingTitle.value.trim() === '') return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const drawing = {
+                    id: Date.now(),
+                    title: drawingTitle.value.trim(),
+                    imageData: e.target.result,
+                    date: new Date().toLocaleDateString('en-IN', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    })
+                };
+
+                drawings.unshift(drawing);
+                renderGallery();
+
+                fileInput.value = '';
+                drawingTitle.value = '';
+                fileName.textContent = '';
+                selectedFile = null;
+                addBtn.disabled = true;
+            };
+            reader.readAsDataURL(selectedFile);
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const emptyState = document.getElementById('emptyState');
+
+            if (drawings.length === 0) {
+                gallery.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            gallery.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            gallery.innerHTML = drawings.map(drawing => `
+                <div class="gallery-item">
+                    <img src="${drawing.imageData}" 
+                         alt="${drawing.title}" 
+                         onclick="openModal('${drawing.imageData}')">
+                    <div class="gallery-info">
+                        <div class="gallery-title">${drawing.title}</div>
+                        <div class="gallery-date">${drawing.date}</div>
+                        <button class="delete-btn" onclick="deleteDrawing(${drawing.id})">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteDrawing(id) {
+            if (confirm('Are you sure you want to delete this drawing?')) {
+                drawings = drawings.filter(d => d.id !== id);
+                renderGallery();
+            }
+        }
+
+        function openModal(imageSrc) {
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImage.src = imageSrc;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        renderGallery();
+    </script>
+</body>
+</html>
